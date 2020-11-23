@@ -1,0 +1,225 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+library(tidyverse)
+library(readxl)
+
+```
+
+# Load in raw data.
+```{r}
+hispanic <- read_csv("data/popn_race_age_us_census_estimate_2019.csv")
+```
+
+```{r}
+colnames(hispanic)
+```
+
+```{r}
+hispanic <- hispanic %>% 
+  select(NAME, ORIGIN, POPESTIMATE2019)  %>% 
+  janitor::clean_names() %>%  
+  filter(origin != 0)
+```
+
+```{r}
+unique(hispanic$origin)
+```
+
+```{r}
+hispanic_yes_no <- hispanic %>% 
+mutate(origin = (ifelse(origin == 1, "not_hispanic", "is_hispanic")))
+```
+
+```{r}
+View(hispanic_yes_no)
+```
+
+```{r}
+health <- read_xlsx("data/health_insurance.xlsx", skip = 1) %>% 
+  janitor::clean_names()
+
+```
+
+```{r}
+colnames(health)
+```
+
+```{r}
+
+health <- health %>% 
+  rename(health_insured_2019 = x2019, health_insured_2018 = x2018)
+  
+```
+
+```{r}
+colnames(health)
+```
+
+```{r}
+health <- health %>% 
+  pivot_wider(names_from = coverage, values_from = c("health_insured_2019", "health_insured_2018"))
+```
+
+```{r}
+  health <- health %>% 
+  janitor::clean_names()
+
+```
+
+```{r}
+colnames(health)
+```
+
+```{r}
+health <- health %>% 
+  select(nation_state, health_insured_2019_any_coverage, health_insured_2019_uninsured) %>% 
+    drop_na()
+```
+
+```{r}
+View(health)
+```
+
+```{r}
+colnames(hispanic_yes_no)
+```
+
+```{r}
+hispanic_yes_no <- hispanic_yes_no %>% 
+  rename("state" = "name", "origin_popn_2019" = "popestimate2019")
+```
+
+```{r}
+colnames(hispanic_yes_no)
+```
+
+
+```{r}
+hispanic_yes_no <- hispanic_yes_no %>% 
+  group_by(state, origin) %>% 
+  summarise(sum = sum(origin_popn_2019))
+
+```
+
+```{r}
+hispanic_yes_no <- hispanic_yes_no %>% 
+  pivot_wider(names_from = origin, values_from = sum)
+
+```
+
+```{r}
+health <- health %>% 
+  rename("state" = "nation_state")
+
+```
+
+View(hispanic_yes_no)
+```{r}
+kerr_us_data <- left_join(health, hispanic_yes_no)
+```
+
+```{r}
+nrow(kerr_us_data)
+```
+
+```{r}
+income <- read_xlsx("data/per_capita_income.xlsx") %>% 
+  janitor::clean_names()
+
+```
+
+```{r}
+colnames(income)
+```
+
+```{r}
+income <- income %>% 
+  rename("state" = "state_territory")
+```
+
+
+```{r}
+kerr_us_data <- left_join(income, kerr_us_data)
+```
+
+```{r}
+
+kerr_us_data %>% 
+write_csv("data/kerr_us_data.csv")
+```
+
+```{r}
+View(kerr_us_data)
+```
+
+```{r}
+
+master_data <- read_csv("data/master_data_set.csv")
+
+```
+
+
+```{r}
+colnames(data)
+```
+
+```{r}
+ages <- read_csv("data/ages.csv")
+education <- read_csv("data/education.csv")
+```
+
+```{r}
+
+master_data <- left_join(master_data, education)
+```
+
+```{r}
+master_data <- left_join(master_data, ages)
+```
+```{r}
+master_data <- master_data %>% 
+  janitor::clean_names()
+```
+
+```{r}
+colnames(master_data)
+```
+```{r}
+result <- read_csv("data/result.csv")
+```
+
+```{r}
+master_data <- left_join(master_data, result)
+```
+
+```{r}
+colnames(master_data)
+```
+
+```{r}
+check <- master_data %>% 
+  select(state, x65, X2)
+```
+
+```{r}
+head(check)
+```
+
+```{r}
+master_data <-  master_data %>% 
+  rename(state_result = X2) %>% 
+  rename(adults_65_plus = x65 )
+```
+
+```{r}
+colnames(master_data)
+```
+
+```{r}
+master_data %>% 
+write_csv("data/master_data.csv")
+```
+

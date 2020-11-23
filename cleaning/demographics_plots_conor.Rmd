@@ -1,0 +1,301 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(here)
+library(reshape2)
+library(urbnmapr)
+
+```
+
+```{r}
+demo <- read_csv("data/master_data_final.csv") 
+```
+
+```{r}
+view(demo)
+```
+
+```{r}
+
+demo %>% 
+  pivot_longer(cols = 35:40,
+               names_to = "Race",
+               values_to = "Population") %>% 
+  mutate(Race = ifelse(Race == "white", "White", Race),
+         Race = ifelse(Race == "black", "Black", Race),
+         Race = ifelse(Race == "native", "Native", Race),
+         Race = ifelse(Race == "asian", "Asian", Race),
+         Race = ifelse(Race == "native_hawaiian_pacific_islander", "Native Hawaiian/Pacific Islander", Race),
+         Race = ifelse(Race == "mixed_race", "Mixed Race", Race)) %>%
+    mutate(Race = fct_reorder(Race, Population, .desc = F)) %>% 
+  ggplot(aes(x = Race, y = Population)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+  
+  
+```
+
+Average proportion of populaton for each age group
+```{r}
+average_0_18_prop <- demo %>%
+ summarise(mean_child_0_18 = mean(children_0_18,
+                                  na.rm = T))
+  
+average_19_25_prop <- demo %>%
+ summarise(mean_19_25 = mean(adults_19_25,
+                             na.rm = T))
+
+average_26_34_prop <- demo %>%
+ summarise(mean_26_34 = mean(adults_26_34,
+                             na.rm = T))
+
+average_35_54_prop <- demo %>%
+ summarise(mean_35_54 = mean(adults_35_54,
+                             na.rm = T))
+
+average_55_64_prop <- demo %>%
+ summarise(mean_55_64 = mean(adults_55_64,
+                             na.rm = T))
+
+average_65_plus_prop <- demo %>%
+ summarise(mean_65_plus = mean(adults_65plus,
+                               na.rm = T))
+
+
+average_props <- tibble(average_0_18_prop,
+                        average_19_25_prop,
+                        average_26_34_prop,
+                        average_35_54_prop,
+                        average_55_64_prop,
+                        average_65_plus_prop) %>%
+  pivot_longer(cols = 1:6,
+               names_to = "Age Groups",
+               values_to = "Proportion") %>% 
+  mutate(`Age Groups` = ifelse(`Age Groups` == "mean_child_0_18", "0-18", `Age Groups`),
+         `Age Groups` = ifelse(`Age Groups` == "mean_19_25", "19-25", `Age Groups`),
+         `Age Groups` = ifelse(`Age Groups` == "mean_26_34", "26-34", `Age Groups`),
+         `Age Groups` = ifelse(`Age Groups` == "mean_35_54", "35-54", `Age Groups`),
+         `Age Groups` = ifelse(`Age Groups` == "mean_55_64", "55-64", `Age Groups`),
+         `Age Groups` = ifelse(`Age Groups` == "mean_65_plus", "65 and Over", `Age Groups`)) %>% 
+  ggplot(aes(x = `Age Groups`, y = Proportion)) +
+  geom_bar(stat = "identity")
+  
+```
+
+Filter where college votes is greater than 10 and vice versa
+
+```{r}
+options(scipen = 999)
+
+college_vote_data <- 
+  demo[-c(52,53), ] %>%
+  # pivot_longer(cols = 15:20,
+  #              names_to = "Age Groups",
+  #              values_to = "Proportion") %>% 
+  mutate(totalvotes2020 = joe_biden + donald_trump) %>% 
+  filter( college_votes_available <= 10) %>% 
+  # filter by age group 
+  melt(id.vars = "state",
+                        measure.vars = c("joe_biden",
+                                         "donald_trump")) %>% 
+    ggplot(aes(x = reorder(state, value),
+               y = value)) +
+  geom_col(aes(fill = variable))+
+  coord_flip()
+  
+
+age_group_data <- 
+  demo[-c(52,53), ] %>%
+  filter(adults_65plus >= 0.16) %>% 
+  mutate(totalvotes2020 = joe_biden + donald_trump) %>% 
+  melt(id.vars = "state",
+                        measure.vars = c("joe_biden",
+                                         "donald_trump")) %>% 
+    ggplot(aes(x = reorder(state, value),
+               y = value)) +
+  geom_col(aes(fill = variable))+
+  coord_flip()
+
+
+
+
+```
+
+Race
+
+```{r}
+# race_split <- demo[-c(52,53), ] %>%
+#   pivot_longer(cols = 35:40,
+#                names_to = "Race",
+#                values_to = "Population") %>% 
+#   mutate(Race = ifelse(Race == "white", "White", Race),
+#          Race = ifelse(Race == "black", "Black", Race),
+#          Race = ifelse(Race == "native", "Native", Race),
+#          Race = ifelse(Race == "asian", "Asian", Race),
+#          Race = ifelse(Race == "native_hawaiian_pacific_islander", "Native Hawaiian/Pacific Islander", Race),
+#          Race = ifelse(Race == "mixed_race", "Mixed Race", Race)) %>%
+#   mutate(totalvotes2020 = joe_biden + donald_trump) %>%
+#   melt(id.vars = "Race",
+#                         measure.vars = c("joe_biden",
+#                                          "donald_trump")) %>% 
+#     ggplot(aes(x = reorder(state, value),
+#                y = value)) +
+#   geom_col(aes(fill = variable))+
+#   coord_flip()
+#   
+  
+  
+```
+
+Filter where hispanic population is bigger than average and vice versa
+
+```{r}
+
+mean_hispanic <- demo[-c(52,53), ] %>%
+  summarise(mean(is_hispanic))
+
+
+hispanic_group_data <- demo[-c(52,53), ] %>%
+  filter(is_hispanic <= 1187691) %>% 
+  mutate(totalvotes2020 = joe_biden + donald_trump) %>% 
+  melt(id.vars = "state",
+                        measure.vars = c("joe_biden",
+                                         "donald_trump")) %>% 
+    ggplot(aes(x = reorder(state, value),
+               y = value)) +
+  geom_col(aes(fill = variable))+
+  coord_flip()
+
+
+
+```
+
+```{r}
+mean_black<- demo[-c(52,53), ] %>%
+  summarise(mean(black))
+
+
+black_group_data <- demo[-c(52,53), ] %>%
+  filter(black > 864217.4) %>% 
+  mutate(totalvotes2020 = joe_biden + donald_trump) %>% 
+  melt(id.vars = "state",
+                        measure.vars = c("joe_biden",
+                                         "donald_trump")) %>% 
+    ggplot(aes(x = reorder(state, value),
+               y = value)) +
+  geom_col(aes(fill = variable))+
+  coord_flip()
+```
+
+
+
+Filter where male population is bigger than female and vice versa
+
+```{r}
+
+options(scipen = 999)
+
+ylab <- seq(from = 0.5, to = 20, by = 2)
+
+sex_group_data <- demo[-c(52,53), ] %>%
+  filter(male > female) %>% 
+  mutate(totalvotes2020 = joe_biden + donald_trump) %>% 
+  pivot_longer(cols =  c("joe_biden",
+                             "donald_trump"),
+           names_to = "candidate",
+           values_to = "votes") %>%  
+    ggplot(aes(x = reorder(state, votes),
+               y = votes)) +
+  geom_col(aes(fill = party2020))+
+  coord_flip()+
+  labs(x = "States", y = "Votes (Dem and Rep only)")+
+  scale_y_continuous(labels = paste0(ylab, "M"),
+                     breaks = 10^6 * ylab)+
+  theme(legend.title = element_blank())
+
+
+
+demo[-c(52,53), ] %>% 
+      pivot_longer(cols =  c("female",
+                             "male"),
+                   names_to = "sex",
+                   values_to = "mf") %>%
+      filter(sex == ifelse(input$sex == "Yes", female > male, male > female)) %>%
+      mutate(totalvotes2020 = joe_biden + donald_trump) %>% 
+      pivot_longer(cols =  c("joe_biden",
+                             "donald_trump"),
+                   names_to = "candidate",
+                   values_to = "votes") %>%  
+      ggplot(aes(x = reorder(state, votes),
+                 y = votes)) +
+      geom_col(aes(fill = party2020))+
+      coord_flip()+
+      labs(x = "States", y = "Votes (Dem and Rep only)") +
+  scale_y_continuous(labels = paste0(ylab, "M"),
+                     breaks = 10^6 * ylab
+  )
+  
+```
+
+
+```{r}
+demo2 <- demo[-c(52,53), ] %>%
+  rename(state_name = state)
+  
+states <- get_urbn_map(map = "states", sf = TRUE)
+demo2 <- states %>% 
+  left_join(demo2 , by = "state_name")
+```
+
+```{r}
+tab_2_map <- demo2 %>%
+      filter(male > female) %>% 
+      ggplot() +
+      geom_sf(mapping = aes(fill = party2020),
+              color = "#ffffff", size = 0.25) + 
+      scale_fill_manual(values = c("#5390D9", "#D90429")) +
+      labs(fill = "") +
+      coord_sf(datum = NA)+ 
+      theme_void()
+
+tab_2_map
+
+```
+
+```{r}
+input <- "no"
+
+demo %>%
+      filter(ifelse(input == "yes", female > male, male > female))
+```
+
+```{r}
+test <- demo[-c(52,53), ] %>% 
+  mutate(sex_flag = female > male) %>% 
+  if
+
+
+demo %>%
+      filter(if(input == "yes", T, F))
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

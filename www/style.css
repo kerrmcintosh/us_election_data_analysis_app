@@ -1,0 +1,102 @@
+body {
+  margin-left: 10px;
+  color: #696969;
+}
+
+header {
+  height: 70px;
+}
+
+#top_height {
+height: 70px;
+}
+
+#flag {
+  height: 70px;
+  margin-right: 40px;
+}
+
+.symbol {
+width: 100%;
+border: 1px solid #DCDCDC ;
+}
+
+.navbar-nav { 
+  height: 88px;
+  color: #808080;
+}
+
+.separator {
+  height: 20px;
+}
+
+li a {
+  color: #696969;
+}
+
+.separator30 {
+  height: 30px;
+}
+
+.footer_text {
+display: block;
+text-align: center;
+font-style: italic;
+}
+
+h4 {
+font-weight:100;
+  color: #696969;
+    padding-left: 15px;
+}
+
+h3, h5 {
+font-weight:bold;
+  color: #696969;
+}
+
+h6 {
+font-size :1.6REM;
+  color: #696969;
+}
+
+.titlemap {
+font-weight:100;
+  color: #696969;
+  padding-left: 15px;
+}
+
+.radio_button {
+  border: 1px solid #DCDCDC ;
+  background-color: #F0F0F0;
+  padding: 0 5px 0 8px;
+}
+
+.stat_box {
+
+  color: #5390D9;
+  text-align: center;
+
+}
+
+
+.radio_button_conor {
+  border: 1px solid #DCDCDC ;
+  background-color: #F0F0F0;
+  padding: 0 5px 0 8px;
+  margin-top: 20px;
+}
+
+.select_button {
+  border: 1px solid #DCDCDC ;
+  background-color: #F0F0F0;
+  padding: 0 5px 0 8px;
+  width: 375px;
+  margin: 0 auto;
+}
+
+.table_shade {
+  border: 1px solid #DCDCDC ;
+  background-color: #F8F8F8;
+  padding: 10px;
+}

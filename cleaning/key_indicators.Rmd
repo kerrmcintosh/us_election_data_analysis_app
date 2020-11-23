@@ -1,0 +1,230 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+library(tidyverse)
+
+# #data brought in
+# election_data <- read_csv("data/master_data_final.csv") 
+# ```
+# 
+# ```{r}
+# colnames(election_data)
+# ```
+# ```{r}
+# election_data <- election_data %>% 
+# mutate(income_change_over_year = ((per_capita_income_2020 - per_capita_income_2019)/per_capita_income_2019)*100) %>% 
+# mutate(income_change_over_year = round(income_change_over_year,1)) %>% 
+# mutate(unemployment_change_over_year = ((unemployment_010920 - unemployment_010919)/unemployment_010919)*100) %>% 
+# mutate(unemployment_change_over_year = round(unemployment_change_over_year,1)) %>%   
+# mutate(health_insured = (health_insured_2019_any_coverage/(health_insured_2019_any_coverage + health_insured_2019_uninsured))*100) %>% 
+# mutate(hispanic = (is_hispanic/(is_hispanic + not_hispanic))*100) %>% 
+# mutate(covid_cases_perc_state_popn = (tot_cases/total_popn)*100) %>% 
+# mutate(states_deaths_prop_cases = (tot_death/tot_cases)* 100)  %>% 
+# mutate(black = (black/(black + asian + mixed_race + native + native_hawaiian_pacific_islander + white))*100) %>% 
+# mutate(net_int_migration =round(net_int_migration,2))
+# 
+# 
+#   
+# ```
+# 
+# ```{r}
+# head(election_data)
+# ```
+# 
+# ```{r}
+# key_indicators <- election_data %>% 
+#   select("state", "college_votes_available", "per_capita_income_2020", "income_change_over_year", "unemployment_010920",  "unemployment_change_over_year", "adult_gun_at_home_perc", "health_insured", "hispanic", "black", "percent_high_school_or_higher", "percent_bachelors_or_higher", "adults_65plus", "party2016", "party2020",
+#          "states_deaths_prop_cases", "covid_cases_perc_state_popn", "net_int_migration")
+# ```
+# 
+# ```{r}
+# # mean_key <- key_indicators %>% 
+# # filter(state != "District of Columbia")
+# # mean_key <- mean_key[-c(51,52), ] 
+# ```
+# 
+# ```{r}
+# # mean_key %>%  write_csv("data/mean_kerr.csv")
+# ```
+# 
+# ```{r}
+# mean_key <- read_csv("data/mean_kerr.csv")
+# View(mean_key)
+# ```
+# 
+# ```{r}
+# key_indicators <- rbind(key_indicators, mean_key)
+# ```
+# 
+# ```{r}
+# View(key_indicators)
+# ```
+# 
+# 
+# ```{r}
+# key_indicators$adult_gun_at_home_perc  <- as.double(key_indicators$adult_gun_at_home_perc )
+# ```
+# 
+# ```{r}
+# str(key_indicators)
+# ```
+# ```{r}
+# View(key_indicators)
+# ```
+# 
+# ```{r}
+# key_indicators <- key_indicators %>% 
+#   pivot_longer(!c(state, party2020, party2016), names_to = 'indicator', values_to = 'stat')
+# ```
+# 
+# ```{r}
+# key_indicators$stat <- round(key_indicators$stat,2)
+# ```
+# 
+# ```{r}
+# View(key_indicators)
+# ```
+# 
+# ```{r}
+# # mean2 <- read_csv("data/mean_kerr2.csv")
+# # key_indicators <- left_join(key_indicators, mean2)
+# ```
+# 
+# ```{r}
+# us <- read_csv("data/mean_kerr.csv") %>% 
+#   select(-"state")
+# ```
+# 
+# ```{r}
+# us <- us %>% 
+# pivot_longer(everything(), names_to = 'indicator', values_to = 'mean') 
+# ```
+# 
+# ```{r}
+# View(key_indicators)
+# View(us)
+# ```
+# 
+# ```{r}
+# key_indicators <- left_join(key_indicators, us)
+# ```
+# 
+# ```{r}
+# key_indicators <- key_indicators %>% 
+#   rename(us_average = mean)
+# ```
+# 
+# ```{r}
+# colnames(key_indicators)
+# ```
+# 
+# ```{r}
+# key_indicators <- key_indicators %>% 
+# select(-c("party2016", "party2020"))
+# ```
+# 
+# ```{r}
+# View(key_indicators)
+# ```
+# 
+# ```{r}
+# party <- read_csv("data/master_data_final_copy.csv") 
+# ```
+# 
+# ```{r}
+# party <- party %>% 
+#   pivot_longer(!state, names_to = 'indicator', values_to = 'stat') 
+# ```
+# ```{r}
+# party <- party %>% 
+#   mutate(us_average = NA)
+# ```
+# 
+# ```{r}
+# key_indicators <- rbind(key_indicators, party)
+# ```
+# ```{r}
+# View(key_indicators)
+# ```
+# 
+# ```{r}
+# key_indicators <- key_indicators %>% 
+#   mutate(indicator = ifelse(indicator == "party2016", 2016, indicator)) %>% 
+#     mutate(indicator = ifelse(indicator == "party2020", 2020, indicator)) %>% 
+#     mutate(stat = ifelse(stat == "republican", "Republican", stat)) %>% 
+#     mutate(stat = ifelse(stat == "democrat", "Democrat", stat))
+# ```
+# 
+```{r}
+# key_indicators %>% write_csv("data/key_indicators.csv")
+```
+
+
+
+```{r}
+key_indicators_bar <- read_csv("data/key_inidcators_bar.csv") %>% 
+  filter(indicator != "2020 Winner" & indicator != "2016 Winner" & indicator != "2020 Winning Vote Share (%)" 
+         & indicator != "2016 Winning Vote Share (%)" & indicator != "Electoral College Votes Available" & state != "us_mean" & state != "United States of America")
+  drop_na(state)
+```
+```{r}
+View(key_indicators_bar)
+```
+
+```{r}
+res_2020 <- read_csv("data/result2016_2020/2020result_party.csv")
+```
+
+```{r}
+key_indicators_bar <- left_join(key_indicators_bar, res_2020 )
+```
+
+
+```{r}
+key_indicators_bar %>%  write_csv("data/key_indicators_bar_fin.csv")
+```
+
+
+```{r}
+key_indicators_bar %>% 
+  filter(indicator == "Per Capita Income 2020 ($)")
+```
+
+```{r}
+library(tidyverse)
+key_indicators_bar <- read_csv("data/key_indicators_bar_fin.csv")
+```
+
+
+
+```{r}
+key_indicators_bar <- key_indicators_bar %>% 
+  mutate(indicator = ifelse(is.na(indicator), 0.01, indicator))
+```
+
+```{r}
+key_indicators_bar %>% 
+filter (is.na(stat) == TRUE)
+```
+
+
+```{r}
+key_indicators_bar <- key_indicators_bar  %>% 
+  group_by(party2020, indicator) %>% 
+  summarise(mean = mean(stat))
+
+```
+```{r}
+key_indicators_bar
+```
+
+```{r}
+key_indicators_bar %>%  write_csv("data/key_inicat_mean.csv")
+```
+
+```{r}
+View(key_indicators_bar)
+```
+
