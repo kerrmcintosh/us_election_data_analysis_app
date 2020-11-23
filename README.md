@@ -2,7 +2,7 @@
 
 ### 6 Day Group Project 
 
-I got together with 2 others who had been on the CodeClan Data Analysis to build a Data Analysis project from scratch.
+I teamed up with 2 others who had been on the CodeClan Data Analysis course with me to build a Data Analysis project from scratch.
 
 ###### Process
 In our initial meeting ( via Zoom) we discussed options for projects, and as the US 2020 Election had just happened in the last week we decided that this would be an excellent subjsct area to explore.
