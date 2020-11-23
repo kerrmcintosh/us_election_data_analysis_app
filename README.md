@@ -1,5 +1,8 @@
 # US Election Data Analysis App
 
+Link to app:
+https://kerr-mcintosh.shinyapps.io/us_election_2020_state_analysis/?_ga=2.111229444.1299395142.1606142797-93431349.1606142797
+
 ### 6 Day Group Project 
 
 I teamed up with 2 others who had been on the CodeClan Data Analysis course with me to build a Data Analysis project from scratch.
